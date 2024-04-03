@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Element Position</title>
+  <style>
+    .target {
+      border: 1px solid black;
+      width: 200px;
+      height: 200px;
+      background-color: #ccc;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="target"></div>
+  <div class="target"></div>
+
+  <script>
+    function getCoord(target) {
+      // 요소의 위치를 상대적으로 계산합니다.
+      const rect = target.getBoundingClientRect();
+
+      // 결과를 출력합니다.
+      console.log('요소의 상대적인 위치:');
+      console.log('상단:', rect.top);
+      console.log('왼쪽:', rect.left);
+      console.log('우측:', rect.right);
+      console.log('하단:', rect.bottom);
+    }
+    const dd = Array.from(document.querySelectorAll('.target'));
+    dd.forEach((node) => {
+      node.addEventListener('click', (e) => {
+        getCoord(e.target);
+      })
+    })
+  </script>
+
+</body>
+
+</html>

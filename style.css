@@ -1,0 +1,40 @@
+html {
+  padding: 0;
+  margin: 0;
+  user-select: none;
+}
+div.card{
+  width: 100px;
+  height: 150px;
+  border-radius: 15px;
+  perspective: 1000px;
+}
+div.head, div.tail{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border-radius: 15px;
+  backface-visibility: hidden;
+  transition: transform 0.5s;
+}
+
+div.head{
+  background-color: aqua;
+  text-align: center;
+  line-height: 150px;
+  font-size: 1.24rem;
+  font-weight: bold;
+}
+
+div.tail{
+  background-color: yellow;
+  transform: rotateY(180deg);
+}
+
+.card.reversed .head {
+  transform: rotateY(-180deg);
+}
+
+.card.reversed .tail {
+  transform: rotateY(0deg);
+}
