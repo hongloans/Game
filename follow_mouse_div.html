@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Follow Mouse Red Square Div</title>
+<style>
+    #follower {
+        width: 30px;
+        height: 30px;
+        background-color: red;
+        position: fixed;
+        z-index: 9999;
+        pointer-events: none; /* Prevent the div from intercepting mouse events */
+    }
+</style>
+</head>
+<body>
+
+<div id="follower"></div>
+
+<script>
+    var follower = document.getElementById('follower');
+
+    document.addEventListener('mousedown', function(e) {
+        var offsetX = e.clientX - follower.getBoundingClientRect().left;
+        var offsetY = e.clientY - follower.getBoundingClientRect().top;
+
+        document.addEventListener('mousemove', moveHandler);
+
+        function moveHandler(e) {
+            var x = e.clientX - offsetX;
+            var y = e.clientY - offsetY;
+
+            follower.style.left = x + 'px';
+            follower.style.top = y + 'px';
+        }
+
+        document.addEventListener('mouseup', function() {
+            document.removeEventListener('mousemove', moveHandler);
+        });
+    });
+</script>
+
+</body>
+</html>
