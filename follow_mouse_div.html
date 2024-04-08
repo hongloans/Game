@@ -5,13 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Follow Mouse Red Square Div</title>
 <style>
+    html {
+        background-color: black;
+        width: 1vw;
+        height: 1vh;
+    }
+
     #follower {
-        width: 30px;
-        height: 30px;
-        background-color: red;
+        width: 200px;
+        height: 200px;
+        background-color: rgb(238, 125, 125);
         position: fixed;
         z-index: 9999;
-        pointer-events: none; /* Prevent the div from intercepting mouse events */
+        pointer-events: auto; /* Enable mouse events on the div */
+    }
+
+    #follower.glitening {
+        border: 2px solid yellow;
     }
 </style>
 </head>
@@ -21,24 +31,34 @@
 
 <script>
     var follower = document.getElementById('follower');
+    var isMouseDown = false;
+    var offsetX, offsetY;
 
-    document.addEventListener('mousedown', function(e) {
-        var offsetX = e.clientX - follower.getBoundingClientRect().left;
-        var offsetY = e.clientY - follower.getBoundingClientRect().top;
+    follower.addEventListener('mousedown', function(e) {
+        isMouseDown = true;
+        follower.classList.add('glitening');
+        offsetX = e.clientX - follower.getBoundingClientRect().left;
+        offsetY = e.clientY - follower.getBoundingClientRect().top;
 
-        document.addEventListener('mousemove', moveHandler);
+        // Prevent div from intercepting mouse events
+        //follower.style.pointerEvents = 'none';
+    });
 
-        function moveHandler(e) {
+    document.addEventListener('mousemove', function(e) {
+        if (isMouseDown) {
             var x = e.clientX - offsetX;
             var y = e.clientY - offsetY;
 
             follower.style.left = x + 'px';
             follower.style.top = y + 'px';
         }
+    });
 
-        document.addEventListener('mouseup', function() {
-            document.removeEventListener('mousemove', moveHandler);
-        });
+    document.addEventListener('mouseup', function() {
+        isMouseDown = false;
+        // Enable mouse events on the div
+        follower.style.pointerEvents = 'auto';
+        follower.classList.remove('glitening');
     });
 </script>
 

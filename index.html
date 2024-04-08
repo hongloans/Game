@@ -14,8 +14,41 @@
 </body>
 <script>
   const card = document.querySelector('.card');
-  card.addEventListener('mouseup', () => {
+  card.addEventListener('mouseup', (e) => {
     card.classList.toggle('reversed')
+    e.target.classList.remove('drag');
   })
+  function getCoord(target) {
+      // 요소의 위치를 상대적으로 계산합니다.
+      const rect = target.getBoundingClientRect();
+
+      // 결과를 출력합니다.
+      return {x: rect.left, y: rect.top};
+    }
+    const dd = Array.from(document.querySelectorAll('.card'));
+    dd.forEach((node) => {
+      node.addEventListener('mousedown', (e) => {
+        const a = getCoord(e.target);
+        console.log(a.x, a.y);
+        const b = {x: e.clientX, y: e.clientY};
+        console.log(b.x, b.y);
+        e.target.classList.add('drag');
+      })
+      // node.addEventListener('click', (e) => {
+        
+      // })
+    })
+    document.addEventListener('mouseup', (e)=>{
+      const card = document.querySelector('.drag');
+      if (card) {
+        card.classList.remove('drag');
+      }
+    })
+    document.addEventListener('mousemove', (e)=>{
+      const target = document.querySelector('.drag');
+      if (target) {
+        console.log(getCoord(target));
+      }
+    })
 </script>
 </html>
