@@ -1,66 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Follow Mouse Red Square Div</title>
-<style>
-    html {
-        background-color: black;
-        width: 1vw;
-        height: 1vh;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Follow Mouse Red Square Div</title>
+    <style>
+        body {
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
 
-    #follower {
-        width: 200px;
-        height: 200px;
-        background-color: rgb(238, 125, 125);
-        position: fixed;
-        z-index: 9999;
-        pointer-events: auto; /* Enable mouse events on the div */
-    }
+        html {
+            background-color: black;
+            width: 1vw;
+            height: 1vh;
+        }
 
-    #follower.glitening {
-        border: 2px solid yellow;
-    }
-</style>
+        #follower {
+            width: 20px;
+            height: 20px;
+            background-color: rgb(238, 125, 125);
+            position: fixed;
+            z-index: 9999;
+            pointer-events: auto;
+            /* Enable mouse events on the div */
+        }
+
+        #follower.glitening {
+            border: 2px solid yellow;
+        }
+    </style>
 </head>
+
 <body>
 
-<div id="follower"></div>
+    <div id="follower"></div>
 
-<script>
-    var follower = document.getElementById('follower');
-    var isMouseDown = false;
-    var offsetX, offsetY;
+    <script>
+        var follower = document.getElementById('follower');
+        var isMouseDown = false;
+        var offsetX, offsetY;
+        var prevX, prevY, prevTime, speedX, speedY;
+        var gravity = 0.02;
+        var elasticity = 0.95;
 
-    follower.addEventListener('mousedown', function(e) {
-        isMouseDown = true;
-        follower.classList.add('glitening');
-        offsetX = e.clientX - follower.getBoundingClientRect().left;
-        offsetY = e.clientY - follower.getBoundingClientRect().top;
+        follower.addEventListener('mousedown', function (e) {
+            isMouseDown = true;
+            follower.classList.add('glitening');
+            offsetX = e.clientX - follower.getBoundingClientRect().left;
+            offsetY = e.clientY - follower.getBoundingClientRect().top;
 
-        // Prevent div from intercepting mouse events
-        //follower.style.pointerEvents = 'none';
-    });
+            prevX = e.clientX;
+            prevY = e.clientY;
+            prevTime = performance.now(); // milliseconds
+        });
 
-    document.addEventListener('mousemove', function(e) {
-        if (isMouseDown) {
-            var x = e.clientX - offsetX;
-            var y = e.clientY - offsetY;
+        document.addEventListener('mousemove', function (e) {
+            if (isMouseDown) {
+                var currentTime = performance.now();
+                var deltaTime = currentTime - prevTime; // milliseconds
+                var deltaX = e.clientX - prevX;
+                var deltaY = e.clientY - prevY;
+                speedX = deltaX / deltaTime; // pixels per millisecond
+                speedY = deltaY / deltaTime; // pixels per millisecond
 
-            follower.style.left = x + 'px';
-            follower.style.top = y + 'px';
-        }
-    });
+                prevX = e.clientX;
+                prevY = e.clientY;
+                prevTime = currentTime;
 
-    document.addEventListener('mouseup', function() {
-        isMouseDown = false;
-        // Enable mouse events on the div
-        follower.style.pointerEvents = 'auto';
-        follower.classList.remove('glitening');
-    });
-</script>
+                var x = e.clientX - offsetX;
+                var y = e.clientY - offsetY;
+
+                follower.style.left = x + 'px';
+                follower.style.top = y + 'px';
+
+
+            }
+        });
+
+        document.addEventListener('mouseup', function () {
+            if (isMouseDown) {
+                // speedX /= 2;
+                // speedY /= 2;
+                isMouseDown = false;
+                follower.classList.remove('glitening');
+                isFalling = true;
+                var fallInterval = setInterval(function () {
+                    var x = follower.getBoundingClientRect().left;
+                    var newX = x + speedX;
+                    var y = follower.getBoundingClientRect().top;
+                    var newY = y + (speedY * 3) + (0.5 * gravity * 3 * 3); // v = at^2/2, a = 3px/ms^2, t = 3ms
+                    speedY = speedY + (3 * gravity);
+                    if (newY >= 1000 || newY <= 0) {
+                        speedY = (-1) * (Math.sign(speedY)) * (Math.abs(speedY)*elasticity);
+                    }
+                    if (newX <= 100 || newX >= 2000) {
+                        speedX = (-1) * (Math.sign(speedX)) * (Math.abs(speedX)*elasticity);
+                    }
+                    follower.style.left = newX + 'px';
+                    follower.style.top = newY + 'px';
+                }, 3); // 3ms 간격으로 실행
+            }
+            if (speedX === 0 && speedY === 0) {
+                clearInterval(fallInterval);
+                follower.style.top = '1100px'; // 바닥에 닿으면 멈추기
+                isFalling = false;
+            }
+        });
+
+    </script>
 
 </body>
+
 </html>
