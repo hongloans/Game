@@ -28,11 +28,11 @@
         }
 
         .card:hover {
-          opacity: 0.8;
+          border: 2px solid yellow;
         }
 
         .card.glitening {
-            border: 2px solid yellow;
+            opacity: 0.8;
         }
 
         section {
@@ -93,7 +93,6 @@
             isMouseDown = true;
             follower.classList.add('glitening');
             follower.style.cursor = 'grabbing';
-            follower.style.opacity = '1';
             initialZ = follower.style.zIndex;
             follower.style.zIndex = '9999';
             initialX = follower.getBoundingClientRect().left;
@@ -180,7 +179,6 @@
               isMouseDown = false;
               follower.classList.remove('glitening');
               follower.style.cursor = 'grab';
-              follower.style.opacity = '';
               follower = null;
               initialLane = null;
               initialX = null;
