@@ -6,11 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Follow Mouse Red Square Div</title>
     <style>
-        body {
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
-
         html {
             background-color: black;
             width: 1vw;
@@ -76,8 +71,10 @@
         var follower;
         var isMouseDown = false;
         var offsetX, offsetY;
+        var initialX, initialY, initialZ, initialLane;
         var lanes = Array.from(document.getElementsByClassName('lane'));
         var lane_status = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0};
+        var lane_cards = {"1": [], "2": [], "3": [], "4": [], "5": []};
 
         cards.forEach(card=>{
           card.addEventListener('mousedown', function (e) {
@@ -89,15 +86,20 @@
                       return;
                     }
                     lane_status[cur_id] --;
+                    lane_cards[cur_id] = lane_cards[cur_id].slice(0, lane_cards[cur_id].length - 1);
+                    initialLane = cur_id;
                   }
                 }
             isMouseDown = true;
             follower.classList.add('glitening');
             follower.style.cursor = 'grabbing';
             follower.style.opacity = '1';
+            initialZ = follower.style.zIndex;
             follower.style.zIndex = '9999';
-            offsetX = e.clientX - follower.getBoundingClientRect().left;
-            offsetY = e.clientY - follower.getBoundingClientRect().top;
+            initialX = follower.getBoundingClientRect().left;
+            initialY = follower.getBoundingClientRect().top
+            offsetX = e.clientX - initialX;
+            offsetY = e.clientY - initialY;
 
           })
         });
@@ -113,7 +115,9 @@
                   if (e.clientY >= 0 && e.clientY <= 100) {
                     var cur_id = (Math.floor(e.clientX / 40) + 1).toString()
                     var cur_lane = document.getElementById(cur_id);
-                    cur_lane.classList.add('hovered');
+                    if (cur_lane) {
+                      cur_lane.classList.add('hovered');
+                    }
                     lanes.filter(lane=> lane.id !== cur_id).forEach(lane=>{
                       lane.classList.remove('hovered');
                     })
@@ -133,15 +137,37 @@
         });
 
         document.addEventListener('mouseup', function (e) {
+            console.log(lane_cards);
             if (isMouseDown) {
               if (e.clientX >= 0 && e.clientX <= 200) {
                   if (e.clientY >= 0 && e.clientY <= 100) {
                     var cur_id = (Math.floor(e.clientX / 40) + 1).toString()
                     var cur_lane = document.getElementById(cur_id);
                     cur_lane.classList.remove('hovered');
+                    if (!check_drop(cur_id)) {
+                      follower.style.left = initialX + 'px';
+                      follower.style.top = initialY + 'px';
+                      isMouseDown = false;
+                      follower.style.zIndex = initialZ;
+                      follower.classList.remove('glitening');
+                      follower.style.cursor = 'grab';
+                      follower.style.opacity = '';
+                      if (initialLane) {
+                        lane_cards[initialLane].push(parseInt(follower.innerText));
+                        lane_status[initialLane] ++;
+                      }
+                      follower = null;
+                      initialLane = null;
+                      initialX = null;
+                      initialY = null;
+                      initialZ = null;
+                      return;
+                    }
                     var fixedX = cur_lane.getBoundingClientRect().left + 5;
                     var fixedY = cur_lane.getBoundingClientRect().top + 5 + (15 * (lane_status[cur_id]));
                     lane_status[cur_id] ++;
+                    lane_cards[cur_id].push(parseInt(follower.innerText));
+                    console.log(lane_cards);
                     follower.style.left = fixedX + 'px';
                     follower.style.top = fixedY + 'px';
                     follower.style.zIndex = (lane_status[cur_id] + 2).toString();
@@ -150,15 +176,31 @@
               else {
                 follower.style.zIndex = '1';
               }
+
               isMouseDown = false;
               follower.classList.remove('glitening');
               follower.style.cursor = 'grab';
               follower.style.opacity = '';
               follower = null;
+              initialLane = null;
+              initialX = null;
+              initialY = null;
+              initialZ = null;
             }
         });
 
-
+        function check_drop(cur_id) {
+          if (lane_cards[cur_id].length === 0) {
+           if (parseInt(follower.innerText) === 4) {
+            return true;
+          }}
+          else {
+            if (parseInt(follower.innerText) + 1 === lane_cards[cur_id][lane_cards[cur_id].length - 1]) {
+              return true;
+            }
+          }
+          return false;
+        }
     </script>
 
   </body>
