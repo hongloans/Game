@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hexagonal Game Map Visualization</title>
+  <style>
+    .map-container {
+      display: flex;
+      flex-wrap: wrap;
+      width: 1200px; /* 육각형 맵의 너비 조절 */
+    }
+    .tile {
+      width: 20px; /* 타일의 너비 (50% 줄임) */
+      height: 23.2px; /* 타일의 높이 (50% 줄임) */
+      background-color: rgba(211, 211, 211, 0.3); /* 타일의 색상 (더 연하게) */
+      position: relative;
+      margin-left: 10px; /* 육각형의 오른쪽 부분 절반을 겹치지 않게 하기 위한 여백 조정 */
+      margin-right: -10px; /* 육각형의 오른쪽 부분 절반을 겹치지 않게 하기 위한 여백 조정 */
+      margin-bottom: -6px;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+    .row-even {
+      transform: translateX(10px); /* 짝수 행의 타일을 오른쪽으로 반 칸 이동 */
+    }
+    .team-1 {
+      background-color: rgba(255, 0, 0, 0.1);
+    }
+    .team-2 {
+      background-color: rgba(0, 0, 255, 0.082);
+    }
+    .team-3 {
+      background-color: rgba(0, 128, 0, 0.1);
+    }
+    .team-4 {
+      background-color: rgba(255, 255, 0, 0.1);
+    }
+    .team-5 {
+      background-color: rgba(128, 0, 128, 0.1);
+    }
+    /* Add more styles for other teams as needed */
+  </style>
+</head>
+<body>
+  <div class="map-container" id="map"></div>
+
+  <script>
+    const mapContainer = document.getElementById('map');
+
+    // 맵 데이터 생성 및 시각화 함수
+    function generateAndVisualizeMap(rows, columns) {
+      // 타일 클래스 정의
+      class Tile {
+        constructor(id) {
+          this.id = id;
+          this.adjacentTiles = [];
+          this.team = null; // 각 타일의 속성 중 하나인 팀 정보
+        }
+
+        addAdjacentTile(tile, isSameTeam) {
+          this.adjacentTiles.push({ tile, isSameTeam });
+        }
+      }
+
+      // 각 타일에 대한 랜덤한 값을 생성하는 함수
+      function generateRandomTiles(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      // 맵 데이터 생성
+      function generateMapData(rows, columns) {
+        const totalTiles = rows * columns;
+        const mapData = [];
+
+        // 각 타일의 데이터 생성
+        for (let i = 0; i < totalTiles; i++) {
+          const tile = new Tile(i + 1); // 타일 생성
+          const randomValue = generateRandomTiles(1, 100); // 각 타일에 대한 랜덤한 값 생성
+          tile.team = generateRandomTiles(1, 5); // 팀 정보 할당 (팀 수는 5개)
+          mapData.push(tile); // mapData에 타일 추가
+        }
+
+        // 각 타일에 대한 인접 타일 정보 추가
+        for (let i = 0; i < mapData.length; i++) {
+          const row = Math.floor(i / columns);
+          const col = i % columns;
+
+          // 왼쪽 오른쪽 인접 타일 추가
+          if (col > 0) {
+            mapData[i].addAdjacentTile(mapData[i - 1], mapData[i].team === mapData[i - 1].team);
+          }
+          if (col < columns - 1) {
+            mapData[i].addAdjacentTile(mapData[i + 1], mapData[i].team === mapData[i + 1].team);
+          }
+
+          // 짝수행과 홀수행의 경우 다른 방식으로 인접 타일을 추가
+          if (row % 2 === 0) {
+            if (row > 0) {
+              mapData[i].addAdjacentTile(mapData[i - columns], mapData[i].team === mapData[i - columns].team);
+              if (col < columns - 1) {
+                mapData[i].addAdjacentTile(mapData[i - columns + 1], mapData[i].team === mapData[i - columns + 1].team);
+              }
+            }
+            if (row < rows - 1) {
+              mapData[i].addAdjacentTile(mapData[i + columns], mapData[i].team === mapData[i + columns].team);
+              if (col < columns - 1) {
+                mapData[i].addAdjacentTile(mapData[i + columns + 1], mapData[i].team === mapData[i + columns + 1].team);
+              }
+            }
+          } else {
+            if (row > 0) {
+              mapData[i].addAdjacentTile(mapData[i - columns], mapData[i].team === mapData[i - columns].team);
+              if (col > 0) {
+                mapData[i].addAdjacentTile(mapData[i - columns - 1], mapData[i].team === mapData[i - columns - 1].team);
+              }
+            }
+            if (row < rows - 1) {
+              mapData[i].addAdjacentTile(mapData[i + columns], mapData[i].team === mapData[i + columns].team);
+              if (col > 0) {
+                mapData[i].addAdjacentTile(mapData[i + columns - 1], mapData[i].team === mapData[i + columns - 1].team);
+              }
+            }
+          }
+        }
+
+        return mapData;
+      }
+
+      const mapData = generateMapData(rows, columns);
+
+      // 맵 시각화
+      mapContainer.innerHTML = ''; // 기존의 내용을 지우고 다시 그립니다.
+      mapData.forEach((tile, idx) => {
+
+        const tileElement = document.createElement('div');
+        tileElement.classList.add('tile');
+        if (Math.floor(idx/60)%2==0) {
+          tileElement.classList.add('row-even');
+        }
+        if (tile.team) {
+          tileElement.classList.add(`team-${tile.team}`);
+        }
+        mapContainer.appendChild(tileElement);
+      });
+    }
+
+    // 맵 생성 및 시각화 호출
+    generateAndVisualizeMap(30, 60);
+  </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardGame</title>
+    <style>
+        html {
+            background-color: black;
+        }
+        .card {
+            width: 100px;
+            height: 150px;
+            background-color: pink;
+            border-radius: 15px;
+            position: fixed;
+            border: 1px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div class = 'card'></div>
+    <script>
+        const follower = document.querySelector('.card');
+        
+        document.addEventListener("mousemove", (e) => {
+            follower.style.left = e.clientX + 'px';
+            follower.style.top = e.clientY + 'px';
+        })
+
+    </script>
+</body>
+</html>
